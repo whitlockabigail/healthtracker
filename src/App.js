@@ -8,6 +8,9 @@ import Button from "@material-ui/core/Button";
 import IconButton from "@material-ui/core/IconButton";
 import Drawer from "@material-ui/core/Drawer";
 import MenuIcon from "@material-ui/icons/Menu";
+import List from "@material-ui/core/List";
+import ListItem from "@material-ui/core/ListItem";
+import ListItemText from "@material-ui/core/ListItemText";
 import { Link, Route } from "react-router-dom";
 import { auth, db } from "./firebase";
 import Radio from "@material-ui/core/Radio";
@@ -28,7 +31,7 @@ function Charts(props) {
     const unsubscribe = db
       .collection("users")
       .doc(props.uid)
-      .collection("survey")
+      .collection("surveys")
       .onSnapshot(snapshot => {
         const temp_array = [];
         const sleep_array = [];
@@ -107,18 +110,30 @@ function Charts(props) {
   };
 
   return (
-    <div>
-      <Line data={data} options={options} />
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        padding: 40
+      }}
+    >
+      <Paper style={{ width: 500 }}>
+        <div style={{ display: "flex", justifyContent: "center", padding: 10 }}>
+          <Typography>Health Stats Over Time</Typography>
+        </div>
+        <Line data={data} options={options} />
+      </Paper>
     </div>
   );
 }
 
 function Survey(props) {
   const [happiness, setHappiness] = useState(4);
-  const [sleepHours, setSleepHours] = useState(6.5);
-  const [temp, setTemp] = useState(212);
-  const [lon, setLon] = useState(50);
-  const [lat, setLat] = useState(50);
+  const [sleepHours, setSleepHours] = useState(8);
+  const [temp, setTemp] = useState(70);
+  const [lon, setLon] = useState(-111);
+  const [lat, setLat] = useState(44);
 
   useEffect(() => {
     navigator.geolocation.getCurrentPosition(position => {
@@ -152,10 +167,9 @@ function Survey(props) {
 
   const handleSave = () => {
     let today = moment().format("YYYY-MM-DD HH:mm");
-    db
-      .collection("users")
+    db.collection("users")
       .doc(props.uid)
-      .collection("surveys")` `
+      .collection("surveys")
       .add({
         temp: temp,
         happiness: happiness,
@@ -278,7 +292,7 @@ export function App(props) {
             color="inherit"
             style={{ flexGrow: 1, marginLeft: "30px" }}
           >
-            My App
+            Health Tracker App
           </Typography>
           <Typography color="inherit" style={{ marginRight: "30px" }}>
             Hi! {user.email}
@@ -294,8 +308,14 @@ export function App(props) {
           setDrawerOpen(false);
         }}
       >
-        <Button>Survey</Button>
-        <Button>Chart</Button>
+        <List>
+          <ListItem button to="/app/" component={Link}>
+            <ListItemText primary="Take Survey" />
+          </ListItem>
+          <ListItem button to="/app/charts" component={Link}>
+            <ListItemText primary="Chart" />
+          </ListItem>
+        </List>
       </Drawer>
       <Route
         path="/app/charts"
